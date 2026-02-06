@@ -22,8 +22,6 @@ public class ZES_DeviceApplication
         int ZES_lv_LISTENING_PORT = 9600;
         ZES_NetworkConfigurator ZES_lv_networkConfigurator = ZES_NetworkConfigurator.ZES_fromEnvironment();
         ZES_lv_networkConfigurator.ZES_applyStaticIp();
-        ZES_DhcpServer ZES_lv_dhcpServer = ZES_DhcpServer.ZES_fromEnvironment(ZES_lv_networkConfigurator.ZES_getStaticIp());
-        ZES_lv_dhcpServer.ZES_start();
         if (args.length == 1)
         {
             ZES_lv_LISTENING_PORT = Integer.parseInt(args[0]);
@@ -79,7 +77,6 @@ public class ZES_DeviceApplication
                 Thread.currentThread().interrupt();
             }
             ZES_lv_networkConfigurator.ZES_restoreDhcp();
-            ZES_lv_dhcpServer.close();
         }));
     }
 

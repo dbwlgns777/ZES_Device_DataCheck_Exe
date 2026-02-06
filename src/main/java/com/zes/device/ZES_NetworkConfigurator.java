@@ -22,7 +22,7 @@ public class ZES_NetworkConfigurator {
     private final boolean enabled;
     private final String peerIp;
 
-    private ZES_NetworkConfigurator(String interfaceName, String staticIp, int prefix, String gateway, boolean enabled, String peerIp) {
+       private ZES_NetworkConfigurator(String interfaceName, String staticIp, int prefix, String gateway, boolean enabled) {
         this.interfaceName = interfaceName;
         this.staticIp = staticIp;
         this.prefix = prefix;
@@ -81,10 +81,6 @@ public class ZES_NetworkConfigurator {
         } else {
             ZES_restoreDhcpLinux();
         }
-    }
-
-    public String ZES_getStaticIp() {
-        return staticIp;
     }
 
     private void ZES_applyStaticIpLinux() {
