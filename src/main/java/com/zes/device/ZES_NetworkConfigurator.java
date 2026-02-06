@@ -22,6 +22,7 @@ public class ZES_NetworkConfigurator {
     private final boolean enabled;
     private final String peerIp;
 
+
     private ZES_NetworkConfigurator(String interfaceName, String staticIp, int prefix, String gateway, boolean enabled, String peerIp) {
         this.interfaceName = interfaceName;
         this.staticIp = staticIp;
@@ -61,6 +62,7 @@ public class ZES_NetworkConfigurator {
             ZES_gv_logger.info("Network configuration disabled, skipping static IP setup.");
             return;
         }
+
         if (!peerIp.isBlank() && peerIp.equals(staticIp)) {
             ZES_gv_logger.warning("Static IP matches peer IP (" + peerIp + "). Please use different IPs in the same subnet.");
         }
@@ -87,7 +89,7 @@ public class ZES_NetworkConfigurator {
         return staticIp;
     }
 
-    private void ZES_applyStaticIpLinux() {
+  private void ZES_applyStaticIpLinux() {
         ZES_gv_logger.info("Applying static IP " + staticIp + "/" + prefix + " to interface " + interfaceName);
         ZES_runCommand(List.of("ip", "addr", "flush", "dev", interfaceName), "Flush existing IP addresses");
         ZES_runCommand(List.of("ip", "addr", "add", staticIp + "/" + prefix, "dev", interfaceName), "Add static IP address");

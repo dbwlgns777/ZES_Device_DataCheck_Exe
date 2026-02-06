@@ -24,6 +24,7 @@ public class ZES_DeviceApplication
         ZES_lv_networkConfigurator.ZES_applyStaticIp();
         ZES_DhcpServer ZES_lv_dhcpServer = ZES_DhcpServer.ZES_fromEnvironment(ZES_lv_networkConfigurator.ZES_getStaticIp());
         ZES_lv_dhcpServer.ZES_start();
+
         if (args.length == 1)
         {
             ZES_lv_LISTENING_PORT = Integer.parseInt(args[0]);
