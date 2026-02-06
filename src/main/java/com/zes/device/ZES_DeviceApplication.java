@@ -20,6 +20,8 @@ public class ZES_DeviceApplication
     public static void main(String[] args) throws IOException
     {
         int ZES_lv_LISTENING_PORT = 9600;
+        ZES_NetworkConfigurator ZES_lv_networkConfigurator = ZES_NetworkConfigurator.ZES_fromEnvironment();
+        ZES_lv_networkConfigurator.ZES_applyStaticIp();
         if (args.length == 1)
         {
             ZES_lv_LISTENING_PORT = Integer.parseInt(args[0]);
@@ -74,6 +76,7 @@ public class ZES_DeviceApplication
                 ZES_lv_consumerThreadPool.shutdownNow();
                 Thread.currentThread().interrupt();
             }
+            ZES_lv_networkConfigurator.ZES_restoreDhcp();
         }));
     }
 
