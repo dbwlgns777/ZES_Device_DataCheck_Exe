@@ -20,13 +20,15 @@ public class ZES_NetworkConfigurator {
     private final int prefix;
     private final String gateway;
     private final boolean enabled;
+    private final String peerIp;
 
-    private ZES_NetworkConfigurator(String interfaceName, String staticIp, int prefix, String gateway, boolean enabled) {
+       private ZES_NetworkConfigurator(String interfaceName, String staticIp, int prefix, String gateway, boolean enabled) {
         this.interfaceName = interfaceName;
         this.staticIp = staticIp;
         this.prefix = prefix;
         this.gateway = gateway;
         this.enabled = enabled;
+        this.peerIp = peerIp;
     }
 
     public static ZES_NetworkConfigurator ZES_fromEnvironment() {
@@ -48,15 +50,19 @@ public class ZES_NetworkConfigurator {
             }
         }
         String gateway = ZES_getValue("zes.net.gateway", "ZES_NET_GATEWAY");
+        String peerIp = ZES_getValue("zes.net.peer.ip", "ZES_NET_PEER_IP");
         String enabledValue = ZES_getValue("zes.net.config.enabled", "ZES_NET_CONFIG_ENABLED");
         boolean enabled = enabledValue == null || enabledValue.isBlank() || Boolean.parseBoolean(enabledValue);
-        return new ZES_NetworkConfigurator(iface, staticIp, prefix, gateway, enabled);
+        return new ZES_NetworkConfigurator(iface, staticIp, prefix, gateway, enabled, peerIp);
     }
 
     public void ZES_applyStaticIp() {
         if (!enabled) {
             ZES_gv_logger.info("Network configuration disabled, skipping static IP setup.");
             return;
+        }
+        if (peerIp != null && peerIp.equals(staticIp)) {
+            ZES_gv_logger.warning("Static IP matches peer IP (" + peerIp + "). Please use different IPs in the same subnet.");
         }
         if (ZES_isWindows()) {
             ZES_applyStaticIpWindows();
