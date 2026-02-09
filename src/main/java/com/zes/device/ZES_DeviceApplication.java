@@ -120,5 +120,4 @@ public class ZES_DeviceApplication
             Thread.currentThread().interrupt();
         }
     }
-
 }
