@@ -20,6 +20,11 @@ public class ZES_DeviceApplication
     public static void main(String[] args) throws IOException
     {
         int ZES_lv_LISTENING_PORT = 9600;
+        ZES_NetworkConfigurator ZES_lv_networkConfigurator = ZES_NetworkConfigurator.ZES_fromEnvironment();
+        ZES_lv_networkConfigurator.ZES_applyStaticIp();
+        ZES_delayForNetwork();
+        ZES_DhcpServer ZES_lv_dhcpServer = ZES_DhcpServer.ZES_fromEnvironment(ZES_lv_networkConfigurator.ZES_getStaticIp());
+        ZES_lv_dhcpServer.ZES_start();
         if (args.length == 1)
         {
             ZES_lv_LISTENING_PORT = Integer.parseInt(args[0]);
@@ -74,6 +79,8 @@ public class ZES_DeviceApplication
                 ZES_lv_consumerThreadPool.shutdownNow();
                 Thread.currentThread().interrupt();
             }
+            ZES_lv_networkConfigurator.ZES_restoreDhcp();
+            ZES_lv_dhcpServer.close();
         }));
     }
 
@@ -92,6 +99,26 @@ public class ZES_DeviceApplication
         byte[] ZES_lv_subArray = new byte[size];
         System.arraycopy(byteData, position, ZES_lv_subArray, 0, size);
         return new String(ZES_lv_subArray);
+    }
+
+    private static void ZES_delayForNetwork() {
+        String delayValue = System.getProperty("zes.net.startup.delay.ms", System.getenv("ZES_NET_STARTUP_DELAY_MS"));
+        long delayMs = 1500L;
+        if (delayValue != null && !delayValue.isBlank()) {
+            try {
+                delayMs = Long.parseLong(delayValue);
+            } catch (NumberFormatException e) {
+                ZES_gv_logger.warning("Invalid startup delay value: " + delayValue + ", using default 1500ms.");
+            }
+        }
+        if (delayMs <= 0) {
+            return;
+        }
+        try {
+            Thread.sleep(delayMs);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
 }
