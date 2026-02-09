@@ -29,6 +29,8 @@ public class ZES_DhcpServer implements Runnable, AutoCloseable {
     private static final byte ZES_gv_OPT_ROUTER = 3;
     private static final byte ZES_gv_OPT_LEASE_TIME = 51;
     private static final byte ZES_gv_OPT_END = (byte) 255;
+    private static final int ZES_gv_SEND_RETRIES = 3;
+    private static final long ZES_gv_SEND_RETRY_DELAY_MS = 500L;
 
     private final InetAddress serverIp;
     private final InetAddress offerIp;
@@ -218,9 +220,38 @@ public class ZES_DhcpServer implements Runnable, AutoCloseable {
         reply.put(ZES_gv_OPT_END);
 
         int length = reply.position();
-        DatagramPacket response = new DatagramPacket(reply.array(), length, InetAddress.getByName("255.255.255.255"), ZES_gv_CLIENT_PORT);
-        socket.send(response);
-        ZES_gv_logger.info("Sent DHCP " + ZES_messageTypeLabel(messageType) + " to " + ZES_formatMac(chaddr));
+        InetAddress broadcast = InetAddress.getByName("255.255.255.255");
+        DatagramPacket response = new DatagramPacket(reply.array(), length, broadcast, ZES_gv_CLIENT_PORT);
+        ZES_sendWithRetry(response, messageType, chaddr);
+    }
+
+    private void ZES_sendWithRetry(DatagramPacket response, byte messageType, byte[] chaddr) throws IOException {
+        IOException lastException = null;
+        for (int attempt = 1; attempt <= ZES_gv_SEND_RETRIES; attempt++) {
+            try {
+                socket.send(response);
+                ZES_gv_logger.info("Sent DHCP " + ZES_messageTypeLabel(messageType) + " to " + ZES_formatMac(chaddr));
+                return;
+            } catch (IOException e) {
+                lastException = e;
+                ZES_gv_logger.warning("DHCP send failed (attempt " + attempt + "): " + e.getMessage());
+                ZES_sleep(ZES_gv_SEND_RETRY_DELAY_MS);
+            }
+        }
+        if (lastException != null) {
+            throw lastException;
+        }
+    }
+
+    private void ZES_sleep(long delayMs) {
+        if (delayMs <= 0) {
+            return;
+        }
+        try {
+            Thread.sleep(delayMs);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Override

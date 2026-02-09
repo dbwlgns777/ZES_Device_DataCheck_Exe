@@ -66,6 +66,7 @@
 - 기본 DHCP 서버 IP: 노트북 고정 IP(`192.168.0.19`)
 - 기본 제공 IP: `192.168.0.10`
 - 변경은 아래 시스템 프로퍼티 또는 환경변수로 가능합니다.
+  - `zes.net.startup.delay.ms` / `ZES_NET_STARTUP_DELAY_MS` (기본 1500ms)
   - `zes.dhcp.enabled` / `ZES_DHCP_ENABLED` (기본 true)
   - `zes.dhcp.server.ip` / `ZES_DHCP_SERVER_IP`
   - `zes.dhcp.offer.ip` / `ZES_DHCP_OFFER_IP`
